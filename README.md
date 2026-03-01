@@ -18,10 +18,11 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3. Set your API key:
+3. Set your API key in code:
 
 ```
-export OPENAI_API_KEY="your_api_key"
+# Edit `human_in_the_loop_stream.py` and replace the placeholder:
+os.environ.setdefault("OPENAI_API_KEY", "your_api_key")
 ```
 
 ### Run

@@ -9,9 +9,13 @@ the request, then pauses for approval when needed.
 """
 
 import asyncio
+import os
 
 from agents import Agent, Runner, function_tool
 from examples.auto_mode import confirm_with_fallback
+
+# Set your API key here if you don't want to use `export OPENAI_API_KEY`.
+os.environ.setdefault("OPENAI_API_KEY", "your_api_key")
 
 
 async def _needs_temperature_approval(_ctx, params, _call_id) -> bool:
