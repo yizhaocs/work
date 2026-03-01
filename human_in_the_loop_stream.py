@@ -10,8 +10,10 @@ the request, then pauses for approval when needed.
 
 import asyncio
 
-from agents import Agent, Runner, function_tool
+from agents import Agent, Runner, function_tool, set_default_openai_key
 from examples.auto_mode import confirm_with_fallback
+
+set_default_openai_key("your_api_key")
 
 
 async def _needs_temperature_approval(_ctx, params, _call_id) -> bool:
