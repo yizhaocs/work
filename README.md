@@ -1,7 +1,7 @@
 ## Human-in-the-Loop Streaming Example
 
 This project mirrors the `human_in_the_loop_stream.py` example from
-the OpenAI Agents Python SDK.
+the OpenAI Agents Python SDK, and also includes an `Agent.as_tool` HITL example.
 
 ### Setup
 

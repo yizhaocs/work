@@ -15,7 +15,7 @@ from agents import Agent, Runner, function_tool
 from examples.auto_mode import confirm_with_fallback
 
 # Set your API key here if you don't want to use `export OPENAI_API_KEY`.
-os.environ.setdefault("OPENAI_API_KEY", "your key")
+os.environ.setdefault("OPENAI_API_KEY", "your_api_key")
 
 
 async def _needs_temperature_approval(_ctx, params, _call_id) -> bool:
@@ -66,21 +66,38 @@ async def confirm(question: str) -> bool:
 
 async def main():
     """Run the human-in-the-loop example."""
+    climate_agent = Agent(
+        name="Climate Explainer",
+        instructions=(
+            "You explain climate context and general weather patterns in plain language. "
+            "Do not call tools; provide concise educational explanations."
+        ),
+    )
+
+    climate_tool = climate_agent.as_tool(
+        tool_name="ask_climate_explainer",
+        tool_description=(
+            "Use this tool when the user asks for climate context, background, "
+            "or explanation beyond direct weather/temperature lookup."
+        ),
+        needs_approval=True,
+    )
+
     main_agent = Agent(
         name="Weather Assistant",
         instructions=(
             "You are a helpful weather assistant. "
-            "Answer questions about weather and temperature using the available tools."
+            "Answer questions about weather and temperature using the available tools. "
+            "If the user asks for broader climate explanation, call ask_climate_explainer."
         ),
-        tools=[get_temperature, get_weather],
+        tools=[get_temperature, get_weather, climate_tool],
     )
 
     # Run the agent with streaming
     result = Runner.run_streamed(
         main_agent,
-        # "What is the weather in Oakland?",
-        "What is the temperature in Oakland?",
-        # "What is the weather and temperature in Oakland?"
+        "What is the weather and temperature in Oakland, "
+        "and can you explain the city's climate pattern?",
     )
     async for _ in result.stream_events():
         pass  # Process streaming events silently or could print them
