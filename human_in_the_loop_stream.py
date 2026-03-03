@@ -15,7 +15,7 @@ from agents import Agent, Runner, function_tool
 from examples.auto_mode import confirm_with_fallback
 
 # Set your API key here if you don't want to use `export OPENAI_API_KEY`.
-os.environ.setdefault("OPENAI_API_KEY", "your_api_key")
+os.environ.setdefault("OPENAI_API_KEY", "your key")
 
 
 async def _needs_temperature_approval(_ctx, params, _call_id) -> bool:
@@ -90,7 +90,8 @@ async def main():
             "Answer questions about weather and temperature using the available tools. "
             "If the user asks for broader climate explanation, call ask_climate_explainer."
         ),
-        tools=[get_temperature, get_weather, climate_tool],
+        tools=[climate_tool],
+        # tools=[get_temperature, get_weather, climate_tool],
     )
 
     # Run the agent with streaming
