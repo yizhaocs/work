@@ -15,7 +15,7 @@ from agents import Agent, Runner, function_tool
 from examples.auto_mode import confirm_with_fallback
 
 # Set your API key here if you don't want to use `export OPENAI_API_KEY`.
-os.environ.setdefault("OPENAI_API_KEY", "your_api_key")
+os.environ.setdefault("OPENAI_API_KEY", "your key")
 
 
 async def _needs_temperature_approval(_ctx, params, _call_id) -> bool:
@@ -78,7 +78,9 @@ async def main():
     # Run the agent with streaming
     result = Runner.run_streamed(
         main_agent,
-        "What is the weather and temperature in Oakland?",
+        # "What is the weather in Oakland?",
+        "What is the temperature in Oakland?",
+        # "What is the weather and temperature in Oakland?"
     )
     async for _ in result.stream_events():
         pass  # Process streaming events silently or could print them
