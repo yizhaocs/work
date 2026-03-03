@@ -13,6 +13,8 @@ import os
 
 from agents import Agent, Runner, function_tool
 from examples.auto_mode import confirm_with_fallback
+from openai.types.responses.response_text_delta_event import ResponseTextDeltaEvent
+from agents.stream_events import RawResponsesStreamEvent
 
 # Set your API key here if you don't want to use `export OPENAI_API_KEY`.
 os.environ.setdefault("OPENAI_API_KEY", "your key")
@@ -64,6 +66,20 @@ async def confirm(question: str) -> bool:
     return confirm_with_fallback(f"{question} (y/n): ", default=True)
 
 
+async def stream_text_deltas(result) -> None:
+    """Print streamed response text deltas as they arrive."""
+    printed_any_token = False
+    async for event in result.stream_events():
+        if isinstance(event, RawResponsesStreamEvent) and isinstance(
+            event.data, ResponseTextDeltaEvent
+        ):
+            print(event.data.delta, end="", flush=True)
+            printed_any_token = True
+
+    if printed_any_token:
+        print()
+
+
 async def main():
     """Run the human-in-the-loop example."""
     climate_agent = Agent(
@@ -100,8 +116,7 @@ async def main():
         "What is the weather and temperature in Oakland, "
         "and can you explain the city's climate pattern?",
     )
-    async for _ in result.stream_events():
-        pass  # Process streaming events silently or could print them
+    await stream_text_deltas(result)
 
     # Handle interruptions
     while len(result.interruptions) > 0:
@@ -129,8 +144,7 @@ async def main():
         # Resume execution with streaming
         print("\nResuming agent execution...")
         result = Runner.run_streamed(main_agent, state)
-        async for _ in result.stream_events():
-            pass  # Process streaming events silently or could print them
+        await stream_text_deltas(result)
 
     print("\n" + "=" * 80)
     print("Final Output:")
