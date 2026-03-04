@@ -8,13 +8,13 @@ The streaming version provides real-time feedback as the agent processes
 the request, then pauses for approval when needed.
 """
 
+from agents.stream_events import RawResponsesStreamEvent
 import asyncio
 import os
 
-from agents import Agent, Runner, function_tool
+from agents import Agent, Runner, function_tool, handoff
 from examples.auto_mode import confirm_with_fallback
 from openai.types.responses.response_text_delta_event import ResponseTextDeltaEvent
-from agents.stream_events import RawResponsesStreamEvent
 
 # Set your API key here if you don't want to use `export OPENAI_API_KEY`.
 os.environ.setdefault("OPENAI_API_KEY", "your key")
@@ -110,9 +110,26 @@ async def main():
         # tools=[get_temperature, get_weather, climate_tool],
     )
 
+    handoff_router = Agent(
+        name="Weather Router",
+        instructions=(
+            "You route user weather and climate questions to the right specialist. "
+            "Always transfer weather and climate requests to the Weather Assistant."
+        ),
+        handoffs=[
+            handoff(
+                main_agent,
+                tool_name_override="transfer_to_weather_assistant",
+                tool_description_override=(
+                    "Transfer weather and climate questions to Weather Assistant."
+                ),
+            )
+        ],
+    )
+
     # Run the agent with streaming
     result = Runner.run_streamed(
-        main_agent,
+        handoff_router,
         "can you explain the city's climate pattern in Oakland?",
     )
     await stream_text_deltas(result)
@@ -142,7 +159,7 @@ async def main():
 
         # Resume execution with streaming
         print("\nResuming agent execution...")
-        result = Runner.run_streamed(main_agent, state)
+        result = Runner.run_streamed(handoff_router, state)
         await stream_text_deltas(result)
 
     print("\n" + "=" * 80)
