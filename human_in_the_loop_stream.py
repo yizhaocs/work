@@ -113,8 +113,7 @@ async def main():
     # Run the agent with streaming
     result = Runner.run_streamed(
         main_agent,
-        "What is the weather and temperature in Oakland, "
-        "and can you explain the city's climate pattern?",
+        "can you explain the city's climate pattern in Oakland?",
     )
     await stream_text_deltas(result)
 
